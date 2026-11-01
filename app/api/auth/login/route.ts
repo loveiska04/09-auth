@@ -1,8 +1,7 @@
-
 import { NextRequest, NextResponse } from 'next/server';
 import { api } from '../../api';
 import { cookies } from 'next/headers';
-import { parseSetCookie } from '@edge-runtime/cookies';
+import { parseSetCookie } from 'cookie';
 import { isAxiosError } from 'axios';
 import { logErrorResponse } from '../../_utils/utils';
 
@@ -20,22 +19,13 @@ export async function POST(req: NextRequest) {
       for (const cookieStr of cookieArray) {
         const parsed = parseSetCookie(cookieStr);
 
-        if (parsed && parsed.value) {
-          const options = {
-            expires: parsed.expires,
-            path: parsed.path,
-            maxAge: parsed.maxAge,
-          };
-
-          if (parsed.name === 'accessToken') {
-            cookieStore.set('accessToken', parsed.value, options);
-          }
-
-          if (parsed.name === 'refreshToken') {
-            cookieStore.set('refreshToken', parsed.value, options);
-          }
-        }
-      }
+    if (parsed.value !== undefined) {
+        cookieStore.set({
+            ...parsed,
+            value: parsed.value,
+        });
+    }
+    }
 
       return NextResponse.json(apiRes.data, { status: apiRes.status });
     }

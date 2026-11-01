@@ -5,26 +5,28 @@ import { nextServer } from './api';
 import { User } from '@/types/user';
 import { Note } from '@/types/note';
 
-export const checkServerSession = async () => {
-  // Get current cookies
-  const cookieStore = await cookies();
+export const checkServerSession = async (cookieHeader?: string) => {
+  const cookieHeaderValue =
+    cookieHeader ?? (await cookies()).toString();
+
   const res = await nextServer.get('/auth/session', {
     headers: {
-      // Pass cookies on
-      Cookie: cookieStore.toString(),
+      Cookie: cookieHeaderValue,
     },
   });
-  // Return full response so middleware has access to new cookies
+
   return res;
 };
 
 export const getServerMe = async (): Promise<User> => {
   const cookieStore = await cookies();
+
   const { data } = await nextServer.get('/users/me', {
     headers: {
       Cookie: cookieStore.toString(),
     },
   });
+
   return data;
 };
 
@@ -42,6 +44,8 @@ export interface FetchNotesParams {
 }
 
 export const fetchNotes = async (params: FetchNotesParams) => {
+  const cookieStore = await cookies();
+
   const response = await nextServer.get<NoteHttpResponse>('/notes', {
     params: {
       search: params.search,
@@ -53,14 +57,18 @@ export const fetchNotes = async (params: FetchNotesParams) => {
       Cookie: cookieStore.toString(),
     },
   });
+
   return response.data;
 };
 
 export const fetchNoteById = async (id: string) => {
+  const cookieStore = await cookies();
+
   const response = await nextServer.get<Note>(`/notes/${id}`, {
     headers: {
       Cookie: cookieStore.toString(),
     },
   });
+
   return response.data;
 };

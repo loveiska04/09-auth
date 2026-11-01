@@ -14,7 +14,7 @@
     "axios": "^1.11.0",
     "cookie": "^1.0.2",
     "formik": "^2.4.6",
-    "next": "15.4.6",
+    "next": "^15.5.28",
     "react": "19.1.0",
     "react-dom": "19.1.0",
     "react-paginate": "^8.3.0",
@@ -28,9 +28,14 @@
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "eslint": "^9",
-    "eslint-config-next": "15.4.6",
+    "eslint-config-next": "^15.5.28",
     "eslint-config-prettier": "^10.1.8",
     "prettier": "^3.6.2",
     "typescript": "^5"
+  },
+  "overrides": {
+    "next": {
+      "postcss": "^8.5.32"
+    }
   }
 }

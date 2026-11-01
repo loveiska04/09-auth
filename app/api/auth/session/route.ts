@@ -31,10 +31,7 @@ export async function GET() {
           const parsed = parseSetCookie(cookieStr);
 
     if (parsed.value !== undefined) {
-        cookieStore.set({
-            ...parsed,
-            value: parsed.value,
-    });
+        cookieStore.set(parsed.name, parsed.value, parsed);
     }
         }
 

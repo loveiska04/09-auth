@@ -1,7 +1,8 @@
+
 import { NextRequest, NextResponse } from 'next/server';
 import { api } from '../../api';
 import { cookies } from 'next/headers';
-import { parse } from 'cookie';
+import { parseSetCookie } from '@edge-runtime/cookies';
 import { isAxiosError } from 'axios';
 import { logErrorResponse } from '../../_utils/utils';
 
@@ -15,15 +16,25 @@ export async function POST(req: NextRequest) {
 
     if (setCookie) {
       const cookieArray = Array.isArray(setCookie) ? setCookie : [setCookie];
+
       for (const cookieStr of cookieArray) {
-        const parsed = parse(cookieStr);
-        const options = {
-          expires: parsed.Expires ? new Date(parsed.Expires) : undefined,
-          path: parsed.Path,
-          maxAge: Number(parsed['Max-Age']),
-        };
-        if (parsed.accessToken) cookieStore.set('accessToken', parsed.accessToken, options);
-        if (parsed.refreshToken) cookieStore.set('refreshToken', parsed.refreshToken, options);
+        const parsed = parseSetCookie(cookieStr);
+
+        if (parsed && parsed.value) {
+          const options = {
+            expires: parsed.expires,
+            path: parsed.path,
+            maxAge: parsed.maxAge,
+          };
+
+          if (parsed.name === 'accessToken') {
+            cookieStore.set('accessToken', parsed.value, options);
+          }
+
+          if (parsed.name === 'refreshToken') {
+            cookieStore.set('refreshToken', parsed.value, options);
+          }
+        }
       }
 
       return NextResponse.json(apiRes.data, { status: apiRes.status });
@@ -38,6 +49,7 @@ export async function POST(req: NextRequest) {
         { status: error.status }
       );
     }
+
     logErrorResponse({ message: (error as Error).message });
     return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
   }

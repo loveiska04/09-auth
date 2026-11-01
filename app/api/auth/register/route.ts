@@ -2,7 +2,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { api } from '../../api';
 import { cookies } from 'next/headers';
-import { parseSetCookie } from 'next/dist/compiled/@edge-runtime/cookies';
+import { parseSetCookie } from '@edge-runtime/cookies';
 import { isAxiosError } from 'axios';
 import { logErrorResponse } from '../../_utils/utils';
 
@@ -21,8 +21,20 @@ export async function POST(req: NextRequest) {
       for (const cookieStr of cookieArray) {
         const parsed = parseSetCookie(cookieStr);
 
-        if (parsed) {
-          cookieStore.set(parsed);
+        if (parsed && parsed.value) {
+          const options = {
+            expires: parsed.expires,
+            path: parsed.path,
+            maxAge: parsed.maxAge,
+          };
+
+          if (parsed.name === 'accessToken') {
+            cookieStore.set('accessToken', parsed.value, options);
+          }
+
+          if (parsed.name === 'refreshToken') {
+            cookieStore.set('refreshToken', parsed.value, options);
+          }
         }
       }
 
@@ -43,3 +55,4 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
   }
 }
+

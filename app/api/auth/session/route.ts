@@ -2,7 +2,7 @@
 import { NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
 import { api } from '../../api';
-import { parseSetCookie } from 'next/dist/compiled/@edge-runtime/cookies';
+import { parseSetCookie } from '@edge-runtime/cookies';
 import { isAxiosError } from 'axios';
 import { logErrorResponse } from '../../_utils/utils';
 
@@ -31,8 +31,14 @@ export async function GET() {
         for (const cookieStr of cookieArray) {
           const parsed = parseSetCookie(cookieStr);
 
-          if (parsed) {
-            cookieStore.set(parsed);
+          if (parsed && parsed.value) {
+            const options = {
+              expires: parsed.expires,
+              path: parsed.path,
+              maxAge: parsed.maxAge,
+            };
+
+            cookieStore.set(parsed.name, parsed.value, options);
           }
         }
 

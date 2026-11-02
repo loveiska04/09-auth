@@ -20,7 +20,7 @@ export async function POST(req: NextRequest) {
       for (const cookieStr of cookieArray) {
         const parsed = parseSetCookie(cookieStr);
 
-    if (parsed.value !== undefined) {
+    if (parsed.value) {
         cookieStore.set(parsed.name, parsed.value, parsed);
     }
       }
